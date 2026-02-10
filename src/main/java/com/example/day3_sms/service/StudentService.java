@@ -64,7 +64,7 @@ public class StudentService {
 //    return repository.save(existingStudent);
 //    }
 
-    public StudentResponseDto updateStudent(String id, StudentModel student){
+    public StudentResponseDto updateStudent(String id, StudentRequestDto student){
         StudentModel existingStudent = repository.findById(id)
                 .orElseThrow(() -> new StudentNotFoundException("No Student found"));
         existingStudent.setName(student.getName());
@@ -100,5 +100,39 @@ public StudentResponseDto deleteById(String id) {
     );
 }
 
+    public StudentResponseDto patchStudent(String id, StudentRequestDto dto) {
+
+        // 1️⃣ Student find karo
+        StudentModel existingStudent = repository.findById(id)
+                .orElseThrow(() -> new StudentNotFoundException("Student not found"));
+
+        // 2️⃣ Only update fields jo null nahi hain
+
+        // Name update
+        if (dto.getName() != null && !dto.getName().isBlank()) {
+            existingStudent.setName(dto.getName());
+        }
+
+        // Age update
+        if (dto.getAge() > 0) {
+            existingStudent.setAge(dto.getAge());
+        }
+
+        // Email update
+        if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
+            existingStudent.setEmail(dto.getEmail());
+        }
+
+        // 3️⃣ Save updated student
+        StudentModel patchedStudent = repository.save(existingStudent);
+
+        // 4️⃣ Response return karo
+        return new StudentResponseDto(
+                patchedStudent.getId(),
+                patchedStudent.getName(),
+                patchedStudent.getAge(),
+                patchedStudent.getEmail()
+        );
+    }
 
 }
